@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>TenSquare</title>
+  </head>
+  <body>
+    <style media="screen">
+      .container {
+        padding-left: 15px;
+        padding-right: 15px;
+      }
+      .row {
+        padding-left: -15px;
+        width: 510px;
+        height: 100px;
+        margin: 0 auto;
+      }
+      .ten-box {
+        height: 210px;
+      }
+      .box {
+        float: left;
+        width: 100px;
+        height: 100px;
+      }
+      .ten-box-top {
+        border-top: 1px solid black;
+        border-right: 1px solid black;
+        border-bottom: 1px solid black;
+      }
+      .ten-box-bottom {
+        border-bottom: 1px solid black;
+        border-right: 1px solid black;
+      }
+      .ten-box-left {
+        border-left: 1px solid black;
+      }
+      .circle {
+        width: 100px;
+        height: 100px;
+        border-radius: 50px;
+      }
+      .blue {
+        background-color: blue;
+      }
+      .left {
+        float: left;
+      }
+      .green {
+        background-color: green;
+      }
+      .right {
+        float: right;
+      }
+      .red {
+        background-color: pink;
+      }
+      .text-holder {
+        text-align: center;
+      }
+      .sign {
+        position: relative;
+        top: 25px;
+        font-size: 2em;
+      }
+      .number {
+        position: relative;
+        top: 8px;
+        font-size: 4em;
+      }
+      .number-box {
+        border-bottom: 1px solid black;
+      }
+      .reset-btn {
+        border-radius: 5px;
+        border: 1px solid #333;
+        font-size: 1.5em;
+        padding: 5px;
+        line-height: 2;
+        text-align: center;
+      }
+    </style>
+    <div class="container">
+      <div class="row">
+        <div class="box text-holder number-box">
+          <label for="blue-count" class="number" id="blue-count">0</label>
+        </div>
+        <div class="box text-holder">
+          <label for="addition" class="sign">+</label>
+        </div>
+        <div class="box text-holder number-box">
+          <label for="green-count" class="number" id="green-count">0</label>
+        </div>
+        <div class="box text-holder">
+          <label for="equals" class="sign">=</label>
+        </div>
+        <div class="box text-holder number-box">
+          <label for="result" class="number" id="result">10</label>
+        </div>
+      </div>
+      <br>
+      <br>
+      <div class="row ten-box">
+        <div class="box ten-box-top ten-box-left drop-on-me">
+
+        </div>
+        <div class="box ten-box-top drop-on-me">
+
+        </div>
+        <div class="box ten-box-top drop-on-me">
+
+        </div>
+        <div class="box ten-box-top drop-on-me">
+
+        </div>
+        <div class="box ten-box-top drop-on-me">
+
+        </div>
+        <div class="box ten-box-bottom ten-box-left drop-on-me">
+
+        </div>
+        <div class="box ten-box-bottom drop-on-me">
+
+        </div>
+        <div class="box ten-box-bottom drop-on-me">
+
+        </div>
+        <div class="box ten-box-bottom drop-on-me">
+
+        </div>
+        <div class="box ten-box-bottom drop-on-me">
+
+        </div>
+      </div>
+      <br><br>
+      <div class="row">
+        <div class="circle blue left drag-me">
+        </div>
+        <div class="circle green right drag-me">
+        </div>
+      </div>
+      <br><br>
+      <div class="row">
+        <div class="reset-btn red" id="reset-btn" onclick="clearAllContent()">
+          Clear All
+        </div>
+      </div>
+    </div>
+
+    <script>
+      var colors = ['green', 'blue'];
+
+      var draggables = document.getElementsByClassName('drag-me');
+      Array.prototype.forEach.call(draggables, function(draggable) {
+        draggable.setAttribute('draggable', true);
+        draggable.setAttribute('ondragstart', 'startDrag(event)');
+        draggable.setAttribute('onclick', 'addToBox(event.target)');
+      });
+
+      var targets = document.getElementsByClassName('drop-on-me');
+      Array.prototype.forEach.call(targets, function(target) {
+        target.setAttribute('ondragover', 'return false');
+        target.setAttribute('ondragenter', 'return false');
+        target.setAttribute('ondrop', 'onDrop(event)');
+        target.setAttribute('onclick', 'clearContent(event)');
+      });
+
+      function box() {
+        return document.getElementsByClassName('drop-on-me');
+      }
+
+      function startDrag(event) {
+        var color;
+        event.target.getAttribute('class').split(' ').forEach(function(cl) {
+          if (colors.indexOf(cl) != -1) {
+            color = cl;
+          }
+        });
+        event.dataTransfer.effectAllowed = 'copy';
+        event.dataTransfer.setData('text/plain', color);
+      }
+
+      function onDrop(event) {
+        var color = event.dataTransfer.getData('text/plain');
+        var classes = [];
+        var decrement = false;
+        var increment = true;
+        event.target.getAttribute('class').split(' ').forEach(function(cl) {
+          if (colors.indexOf(cl) === -1) {
+            classes.push(cl);
+          } else {
+            if (color === cl) {
+              increment = false;
+            } else {
+              decrement = true;
+            }
+          }
+        });
+        if (increment) {
+          classes.push(color);
+          event.target.setAttribute('class', classes.join(' '));
+          changeCount(color, 1);
+        }
+        if (decrement) {
+          if (color === 'blue') {
+            changeCount('green', -1);
+          } else {
+            changeCount('blue', -1);
+          }
+        }
+      }
+
+      function addToBox(source) {
+        var color;
+        var target = null;
+        source.getAttribute('class').split(' ').forEach(function(cl) {
+          if (colors.indexOf(cl) !== -1) {
+            color = cl;
+          }
+        });
+        Array.prototype.forEach.call(box(), function(b) {
+          if (!getColorFromClasses(b) && !target) {
+            target = b;
+            addAColorClass(b, color);
+          }
+        });
+      }
+
+      function getColorFromClasses(target) {
+        var color = null;
+        target.getAttribute('class').split(' ').forEach(function(cl) {
+          if (colors.indexOf(cl) !== -1) {
+            color = cl;
+          }
+        });
+        return color;
+      }
+
+      function addAColorClass(target, color) {
+        var classes = [];
+        target.getAttribute('class').split(' ').forEach(function(cl) {
+          if (colors.indexOf(cl) === -1) {
+            classes.push(cl);
+          }
+        });
+        classes.push(color);
+        classes = classes.join(' ');
+        target.setAttribute('class', classes);
+        changeCount(color, 1);
+      }
+
+      function changeCount(color, val) {
+        var counter = document.getElementById(color+'-count');
+        var count = parseInt(counter.innerHTML);
+        counter.textContent = count + val;
+        setResult();
+      }
+
+      function clearContent(event) {
+        var classes = event.target.getAttribute('class').split(' ');
+        var color;
+
+        classes = classes.filter(function(cl) {
+          if (colors.indexOf(cl) === -1) {
+            return true;
+          } else {
+            color = cl;
+            return false;
+          }
+          return colors.indexOf(cl) === -1;
+        }).join(' ');
+
+        event.target.setAttribute('class', classes);
+        if (color) {
+          changeCount(color, -1);
+        }
+      }
+
+      function clearAllContent() {
+        var elements = document.getElementsByClassName('drop-on-me');
+        Array.prototype.forEach.call(elements, function(el) {
+          clearContent({target: el});
+        });
+      }
+
+      function setResult() {
+        var blueCount = parseInt(document.getElementById('blue-count').innerHTML);
+        var greenCount = parseInt(document.getElementById('green-count').innerHTML);
+        var target = document.getElementById('result');
+        target.textContent = blueCount + greenCount;
+      }
+    </script>
+  </body>
+</html>
